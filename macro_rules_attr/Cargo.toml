@@ -1,10 +1,10 @@
 [package]
 name = "macro_rules_attr"
-version = "0.1.1"
+version = "0.1.2"
 readme = "README.md"
 description = "Use declarative macros as proc_macro attributes. (`#[apply]` your `macro_rules!`)"
 keywords = ["macro", "attribute", "decorator", "macro_rules", "proc-macro"]
-categories = ["rust-patterns", "development-tools::procedural-macro-helpers"]
+categories = ["rust-patterns", "development-tools::procedural-macro-helpers", "no-std"]
 edition.workspace = true
 include.workspace = true
 repository.workspace = true

@@ -1,10 +1,10 @@
 [package]
 name = "should_match"
-version = "0.1.0"
+version = "0.1.1"
 readme = "README.md"
 description = "Pass a test if the output matches a pattern."
-keywords = ["macro", "testing"]
-categories = ["rust-patterns", "development-tools::testing"]
+keywords = ["macro", "testing", "no-std"]
+categories = ["rust-patterns", "development-tools::testing", "no-std"]
 edition.workspace = true
 include.workspace = true
 repository.workspace = true
@@ -12,4 +12,4 @@ license.workspace = true
 authors.workspace = true
 
 [dev-dependencies]
-macro_rules_attr = { path = "../macro_rules_attr", version = "0.1.0" }
+macro_rules_attr = { path = "../macro_rules_attr", version = "0.1.2" }

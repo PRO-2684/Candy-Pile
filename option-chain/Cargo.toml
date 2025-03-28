@@ -1,10 +1,10 @@
 [package]
 name = "option-chain"
-version = "0.1.1"
+version = "0.1.2"
 readme = "README.md"
 description = "A macro for using `?` operator in functions that don't return `Option`."
 keywords = ["option", "chain", "macro", "no-std"]
-categories = ["development-tools::procedural-macro-helpers", "no-std"]
+categories = ["rust-patterns", "development-tools::procedural-macro-helpers", "no-std"]
 edition.workspace = true
 include.workspace = true
 repository.workspace = true
