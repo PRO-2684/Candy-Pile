@@ -1,0 +1,24 @@
+[package]
+name = "macro_rules_attr"
+version = "0.1.1"
+readme = "README.md"
+description = "Use declarative macros as proc_macro attributes. (`#[apply]` your `macro_rules!`)"
+keywords = ["macro", "attribute", "decorator", "macro_rules", "proc-macro"]
+categories = ["rust-patterns", "development-tools::procedural-macro-helpers"]
+edition.workspace = true
+include.workspace = true
+repository.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[features]
+default = []
+
+[lib]
+proc-macro = true
+
+[dependencies]
+log = { version = "0.4.27", optional = true } # Enable logging by `log` feature
+
+[dev-dependencies]
+paste = "1.0.15"

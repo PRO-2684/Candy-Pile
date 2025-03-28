@@ -1,0 +1,10 @@
+[workspace]
+resolver = "2"
+members = ["macro_rules_attr", "option-chain", "should_match"]
+
+[workspace.package]
+edition = "2024"
+include = ["/src", "README.md"]
+repository = "https://github.com/PRO-2684/Candy-Pile"
+license = "MIT"
+authors = ["PRO-2684"]

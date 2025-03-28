@@ -1,0 +1,12 @@
+[package]
+name = "<package-name>"
+version = "0.1.0"
+readme = "README.md"
+description = "<package-description>"
+keywords = ["macro", "attribute", "decorator", "macro_rules", "proc-macro"]
+categories = ["rust-patterns", "development-tools::procedural-macro-helpers", "no-std"]
+edition.workspace = true
+include.workspace = true
+repository.workspace = true
+license.workspace = true
+authors.workspace = true
