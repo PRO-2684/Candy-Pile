@@ -1,9 +1,10 @@
 # `macro_rules_attr`
 
-[![GitHub License](https://img.shields.io/github/license/PRO-2684/macro_rules_attr?logo=opensourceinitiative)](https://github.com/PRO-2684/macro_rules_attr/blob/main/LICENSE)
+[![GitHub License](https://img.shields.io/github/license/PRO-2684/Candy-Pile?logo=opensourceinitiative)](https://github.com/PRO-2684/Candy-Pile/blob/main/LICENSE)
 [![Crates.io Version](https://img.shields.io/crates/v/macro_rules_attr?logo=rust)](https://crates.io/crates/macro_rules_attr)
 [![Crates.io Total Downloads](https://img.shields.io/crates/d/macro_rules_attr?logo=rust)](https://crates.io/crates/macro_rules_attr)
 [![docs.rs](https://img.shields.io/docsrs/macro_rules_attr?logo=rust)](https://docs.rs/macro_rules_attr)
+[![free of syn](https://img.shields.io/badge/free%20of-syn-hotpink)](https://github.com/fasterthanlime/free-of-syn)
 
 Use declarative macros as proc_macro attributes. (`#[apply]` your `macro_rules!`)
 

@@ -1,9 +1,10 @@
 # `should_match`
 
-[![GitHub License](https://img.shields.io/github/license/PRO-2684/should_match?logo=opensourceinitiative)](https://github.com/PRO-2684/should_match/blob/main/LICENSE)
+[![GitHub License](https://img.shields.io/github/license/PRO-2684/Candy-Pile?logo=opensourceinitiative)](https://github.com/PRO-2684/Candy-Pile/blob/main/LICENSE)
 [![Crates.io Version](https://img.shields.io/crates/v/should_match?logo=rust)](https://crates.io/crates/should_match)
 [![Crates.io Total Downloads](https://img.shields.io/crates/d/should_match?logo=rust)](https://crates.io/crates/should_match)
 [![docs.rs](https://img.shields.io/docsrs/should_match?logo=rust)](https://docs.rs/should_match)
+[![free of syn](https://img.shields.io/badge/free%20of-syn-hotpink)](https://github.com/fasterthanlime/free-of-syn)
 
 Pass a test if the output matches a pattern.
 
