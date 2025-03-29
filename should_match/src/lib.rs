@@ -53,6 +53,8 @@ macro_rules! test_match {(
 /// - `$message`: The message to display if the pattern does not match.
 /// - `$footnote`: A footnote to display in the documentation. Optional.
 ///
+/// ---
+///
 /// The dollar hack is attributed to [rust#95860](https://github.com/rust-lang/rust/pull/95860).
 macro_rules! make_macro_pair {(
     $should_macro_name:ident $dollar:tt $test_macro_name:ident,
