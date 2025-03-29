@@ -4,7 +4,7 @@
 #![warn(clippy::all, clippy::nursery, clippy::cargo)]
 #![allow(clippy::test_attr_in_doctest, reason = "For demonstration purposes")]
 
-// `should_*` macros
+// `should_match` and `test_match`
 
 /// Wraps a function that takes nothing and returns something, panicking if the result does not match the expected pattern.
 ///
@@ -28,94 +28,7 @@ macro_rules! should_match {(
     }
 }}
 
-/// Wraps a function that takes nothing and returns something, panicking if the result is not `Ok`. Shortcut for [`should_match!`].
-///
-/// ```rust ignore
-/// // This macro invocation:
-/// should_ok! { ... }
-/// // Is equivalent to:
-/// should_match! { ..., pattern = Ok(_), message = "Expected `Ok`, but got `Err`" }
-/// ```
-///
-/// You probably don't need this, since this is supported by `#[test]` directly. It exists solely for consistency.
-#[macro_export]
-macro_rules! should_ok {(
-    $($target:tt)*
-) => {
-    $crate::should_match! {
-        $($target)*,
-        pattern = ::core::result::Result::Ok(_),
-        message = "Expected `Ok`, but got `Err`"
-    }
-}}
-
-/// Wraps a function that takes nothing and returns something, panicking if the result is not `Err`. Shortcut for [`should_match!`].
-///
-/// ```rust ignore
-/// // This macro invocation:
-/// should_err! { ... }
-/// // Is equivalent to:
-/// should_match! { ..., pattern = Err(_), message = "Expected `Err`, but got `Ok`" }
-/// ```
-#[macro_export]
-macro_rules! should_err {(
-    $($target:tt)*
-) => {
-    $crate::should_match! {
-        $($target)*,
-        pattern = ::core::result::Result::Err(_),
-        message = "Expected `Err`, but got `Ok`"
-    }
-}}
-
-/// Wraps a function that takes nothing and returns something, panicking if the result is not `Some`. Shortcut for [`should_match!`].
-///
-/// ```rust ignore
-/// // This macro invocation:
-/// should_some! { ... }
-/// // Is equivalent to:
-/// should_match! { ..., pattern = Some(_), message = "Expected `Some`, but got `None`" }
-/// ```
-#[macro_export]
-macro_rules! should_some {(
-    $($target:tt)*
-) => {
-    $crate::should_match! {
-        $($target)*,
-        pattern = ::core::option::Option::Some(_),
-        message = "Expected `Some`, but got `None`"
-    }
-}}
-
-/// Wraps a function that takes nothing and returns something, panicking if the result is not `None`. Shortcut for [`should_match!`].
-///
-/// ```rust ignore
-/// // This macro invocation:
-/// should_none! { ... }
-/// // Is equivalent to:
-/// should_match! { ..., pattern = None, message = "Expected `None`, but got `Some`" }
-/// ```
-#[macro_export]
-macro_rules! should_none {(
-    $($target:tt)*
-) => {
-    $crate::should_match! {
-        $($target)*,
-        pattern = ::core::option::Option::None,
-        message = "Expected `None`, but got `Some`"
-    }
-}}
-
-// `test_*` macros
-
-/// Wraps a function that takes nothing and returns something, failing the test if the result is not `Ok`. Shortcut for [`should_match!`].
-///
-/// ```rust ignore
-/// // This macro invocation:
-/// test_match! { ... }
-/// // Is equivalent to:
-/// should_match! { #[test] ... }
-/// ```
+/// [`should_match!`] + `#[test]`.
 #[macro_export]
 macro_rules! test_match {(
     $($target:tt)*
@@ -126,76 +39,93 @@ macro_rules! test_match {(
     }
 }}
 
-/// Wraps a function that takes nothing and returns something, failing the test if the result is not `Ok`. Shortcut for [`should_ok!`].
+/// Makes a pair of macros, built on top of [`should_match!`] and [`test_match`]. Used internally.
 ///
-/// ```rust ignore
-/// // This macro invocation:
-/// test_ok! { ... }
-/// // Is equivalent to:
-/// should_ok! { #[test] ... }
-/// ```
+/// ## Arguments
 ///
-/// You probably don't need this, since this is supported by `#[test]` directly. It exists solely for consistency.
-#[macro_export]
-macro_rules! test_ok {(
-    $($target:tt)*
+/// - `$should_macro_name`: The name of the `should_*` macro.
+/// - `$dollar`: The dollar sign `$`.
+/// - `$test_macro_name`: The name of the `test_*` macro.
+/// - `$full_pattern`: The full pattern to match.
+/// - `$display_pattern`: The pattern to display in the documentation.
+/// - `$message`: The message to display if the pattern does not match.
+/// - `$footnote`: A footnote to display in the documentation. Optional.
+macro_rules! make_macro_pair {(
+    $should_macro_name:ident $dollar:tt $test_macro_name:ident,
+    $full_pattern:pat,
+    $display_pattern:literal,
+    $message:literal
+    $(, $footnote:literal)?
+    $(,)?
 ) => {
-    $crate::should_ok! {
-        #[test]
-        $($target)*
-    }
+    #[doc = "Shortcut for [`should_match!`], with:"]
+    #[doc = "### Pattern"]
+    #[doc = "```rust ignore"]
+    #[doc = $display_pattern]
+    #[doc = "```"]
+    #[doc = "### Message"]
+    #[doc = "```text"]
+    #[doc = $message]
+    #[doc = "```"]
+    $(#[doc = "---"] #[doc = $footnote])?
+    #[macro_export]
+    macro_rules! $should_macro_name {(
+        $dollar($target:tt)*
+    ) => {
+        ::should_match::should_match! {
+            $dollar($target)*,
+            pattern = $full_pattern,
+            message = $message
+        }
+    }}
+
+    #[doc = "Shortcut for [`test_match!`], with:"]
+    #[doc = "### Pattern"]
+    #[doc = "```rust ignore"]
+    #[doc = $display_pattern]
+    #[doc = "```"]
+    #[doc = "### Message"]
+    #[doc = "```text"]
+    #[doc = $message]
+    #[doc = "```"]
+    $(#[doc = "---"] #[doc = $footnote])?
+    #[macro_export]
+    macro_rules! $test_macro_name {(
+        $dollar($target:tt)*
+    ) => {
+        ::should_match::test_match! {
+            $dollar($target)*,
+            pattern = $full_pattern,
+            message = $message
+        }
+    }}
 }}
 
-/// Wraps a function that takes nothing and returns something, failing the test if the result is not `Err`. Shortcut for [`should_err!`].
-///
-/// ```rust ignore
-/// // This macro invocation:
-/// test_err! { ... }
-/// // Is equivalent to:
-/// should_err! { #[test] ... }
-/// ```
-#[macro_export]
-macro_rules! test_err {(
-    $($target:tt)*
-) => {
-    $crate::should_err! {
-        #[test]
-        $($target)*
-    }
-}}
+make_macro_pair! {
+    should_ok $ test_ok,
+    ::core::result::Result::Ok(_),
+    "Ok(_)",
+    "Expected `Ok`, but got `Err`",
+    "You probably don't need this, since this is supported by `#[test]` directly. It exists solely for consistency."
+}
 
-/// Wraps a function that takes nothing and returns something, failing the test if the result is not `Some`. Shortcut for [`should_some!`].
-///
-/// ```rust ignore
-/// // This macro invocation:
-/// test_some! { ... }
-/// // Is equivalent to:
-/// should_some! { #[test] ... }
-/// ```
-#[macro_export]
-macro_rules! test_some {(
-    $($target:tt)*
-) => {
-    $crate::should_some! {
-        #[test]
-        $($target)*
-    }
-}}
+make_macro_pair! {
+    should_err $ test_err,
+    ::core::result::Result::Err(_),
+    "Err(_)",
+    "Expected `Err`, but got `Ok`"
+}
 
-/// Wraps a function that takes nothing and returns something, failing the test if the result is not `None`. Shortcut for [`should_none!`].
-///
-/// ```rust ignore
-/// // This macro invocation:
-/// test_none! { ... }
-/// // Is equivalent to:
-/// should_none! { #[test] ... }
-/// ```
-#[macro_export]
-macro_rules! test_none {(
-    $($target:tt)*
-) => {
-    $crate::should_none! {
-        #[test]
-        $($target)*
-    }
-}}
+make_macro_pair! {
+    should_some $ test_some,
+    ::core::option::Option::Some(_),
+    "Some(_)",
+    "Expected `Some`, but got `None`"
+}
+
+make_macro_pair! {
+    should_none $ test_none,
+    ::core::option::Option::None,
+    "None",
+    "Expected `None`, but got `Some`"
+}
