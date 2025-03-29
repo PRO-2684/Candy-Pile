@@ -39,6 +39,8 @@ macro_rules! test_match {(
     }
 }}
 
+// Helper macro
+
 /// Makes a pair of macros, built on top of [`should_match!`] and [`test_match`]. Used internally.
 ///
 /// ## Arguments
@@ -50,6 +52,8 @@ macro_rules! test_match {(
 /// - `$display_pattern`: The pattern to display in the documentation.
 /// - `$message`: The message to display if the pattern does not match.
 /// - `$footnote`: A footnote to display in the documentation. Optional.
+///
+/// The dollar hack is attributed to [rust#95860](https://github.com/rust-lang/rust/pull/95860).
 macro_rules! make_macro_pair {(
     $should_macro_name:ident $dollar:tt $test_macro_name:ident,
     $full_pattern:pat,
@@ -72,7 +76,7 @@ macro_rules! make_macro_pair {(
     macro_rules! $should_macro_name {(
         $dollar($target:tt)*
     ) => {
-        ::should_match::should_match! {
+        $crate::should_match! {
             $dollar($target)*,
             pattern = $full_pattern,
             message = $message
@@ -93,13 +97,15 @@ macro_rules! make_macro_pair {(
     macro_rules! $test_macro_name {(
         $dollar($target:tt)*
     ) => {
-        ::should_match::test_match! {
+        $crate::test_match! {
             $dollar($target)*,
             pattern = $full_pattern,
             message = $message
         }
     }}
 }}
+
+// Shortcuts for common patterns
 
 make_macro_pair! {
     should_ok $ test_ok,
