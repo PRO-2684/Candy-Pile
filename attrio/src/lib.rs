@@ -4,7 +4,7 @@
 #![warn(clippy::all, clippy::nursery, clippy::cargo)]
 #![allow(clippy::test_attr_in_doctest, reason = "For demonstration purposes")]
 
-/// Generate a macro that annotates items with given attributes.
+/// Generate a macro that annotates items with given attributes. See the [crate-level documentation](crate) for more details.
 ///
 /// ---
 ///
