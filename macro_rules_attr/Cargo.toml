@@ -1,6 +1,6 @@
 [package]
 name = "macro_rules_attr"
-version = "0.1.2"
+version = "0.1.3"
 readme = "README.md"
 description = "Use declarative macros as proc_macro attributes. (`#[apply]` your `macro_rules!`)"
 keywords = ["macro", "attribute", "decorator", "macro_rules", "proc-macro"]
