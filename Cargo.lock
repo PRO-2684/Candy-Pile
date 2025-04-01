@@ -28,6 +28,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "optfield-lite"
+version = "0.1.0"
+dependencies = [
+ "macro_rules_attr",
+]
+
+[[package]]
 name = "option-chain"
 version = "0.1.2"
 

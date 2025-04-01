@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "attrio", "downgrade","macro_rules_attr", "option-chain", "should_match"]
+members = [ "attrio", "downgrade","macro_rules_attr", "optfield-lite", "option-chain", "should_match"]
 
 [workspace.package]
 edition = "2024"
