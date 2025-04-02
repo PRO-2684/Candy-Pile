@@ -62,7 +62,23 @@ struct Another {}
 the_macro! { struct Another {}, "additional tokens", anything, (you - like) }
 ```
 
-## Example
+## Examples
+
+### [`should_match`](https://crates.io/crates/should_match)
+
+```rust
+use macro_rules_attr::apply;
+use should_match::should_err;
+
+#[test]
+#[apply(should_err)]
+fn test() -> Result<(), &'static str> {
+    // This test will pass if an `Err` is returned.
+    Err("Should error")
+}
+```
+
+### Hello Macro
 
 ```rust
 use macro_rules_attr::apply;

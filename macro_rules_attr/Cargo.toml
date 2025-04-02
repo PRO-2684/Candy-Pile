@@ -22,3 +22,4 @@ log = { version = "0.4.27", optional = true } # Enable logging by `log` feature
 
 [dev-dependencies]
 paste = "1.0.15"
+should_match = { path = "../should_match", version = "0.1.1" }
