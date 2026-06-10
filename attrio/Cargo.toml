@@ -12,4 +12,4 @@ license.workspace = true
 authors.workspace = true
 
 [dev-dependencies]
-macro_rules_attr = { path = "../macro_rules_attr", version = "0.1.2" }
+macro_rules_attr.workspace = true

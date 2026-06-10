@@ -8,3 +8,6 @@ include = ["/src", "README.md"]
 repository = "https://github.com/PRO-2684/Candy-Pile"
 license = "MIT"
 authors = ["PRO-2684"]
+
+[workspace.dependencies]
+macro_rules_attr = { path = "./macro_rules_attr", version = "0.1.2" }
