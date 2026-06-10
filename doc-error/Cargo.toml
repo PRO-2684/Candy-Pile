@@ -1,0 +1,15 @@
+[package]
+name = "doc-error"
+version = "0.1.0"
+readme = "README.md"
+description = "Doc error"
+keywords = ["macro", "no-std"]
+categories = ["rust-patterns", "development-tools::procedural-macro-helpers", "no-std"]
+edition.workspace = true
+include.workspace = true
+repository.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dev-dependencies]
+macro_rules_attr.workspace = true

@@ -10,8 +10,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "downgrade"
+name = "doc-error"
 version = "0.1.0"
+dependencies = [
+ "macro_rules_attr",
+]
 
 [[package]]
 name = "log"
