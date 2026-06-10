@@ -37,7 +37,6 @@ macro_rules! optfield {(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use macro_rules_attr::apply;
 
     #[apply(optfield(OptTest))]

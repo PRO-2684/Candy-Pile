@@ -19,8 +19,6 @@ macro_rules! opt {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     fn test_macro_named() {
         #[derive(Clone, Copy)]
