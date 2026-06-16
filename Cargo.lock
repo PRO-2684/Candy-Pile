@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "doc-error"
+name = "declerror"
 version = "0.1.0"
 dependencies = [
  "macro_rules_attr",

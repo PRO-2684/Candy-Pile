@@ -1,15 +1,15 @@
-use doc_error::error_enum;
+use declerror::error_enum;
 use macro_rules_attr::apply;
 
 #[apply(error_enum)]
 pub enum MyError {
-    ///This is a simple error without additional data
+    #[error = "This is a simple error without additional data"]
     SimpleError,
-    ///This is an error with a message: {message}
+    #[error = "This is an error with a message: {message}"]
     ErrorWithMessage { message: String },
-    ///This is an error with a code: {code}
+    #[error = "This is an error with a code: {code}"]
     ErrorWithCode { code: i32 },
-    ///This is an error with a message: {message} and a code: {code}
+    #[error = "This is an error with a message: {message} and a code: {code}"]
     ErrorWithMessageAndCode { message: String, code: i32 },
 }
 

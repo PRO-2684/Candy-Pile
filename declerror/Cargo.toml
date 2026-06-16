@@ -1,9 +1,9 @@
 [package]
-name = "doc-error"
+name = "declerror"
 version = "0.1.0"
 readme = "README.md"
-description = "Doc error"
-keywords = ["macro", "no-std"]
+description = "Declarative macros to \"derive\" Error."
+keywords = ["macro", "no-std", "error"]
 categories = ["rust-patterns", "development-tools::procedural-macro-helpers", "no-std"]
 edition.workspace = true
 include.workspace = true

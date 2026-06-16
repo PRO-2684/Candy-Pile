@@ -10,7 +10,7 @@ macro_rules! error_enum {
         $(#[$enum_attr:meta])*
         $vis:vis enum $name:ident {
             $(
-                #[doc = $doc:literal]
+                #[error = $doc:literal]
                 $(#[$variant_attr:meta])*
                 $variant:ident $({ $($field:ident : $field_ty:ty),* $(,)? })?
             ),* $(,)?
@@ -20,7 +20,6 @@ macro_rules! error_enum {
         #[derive(::core::fmt::Debug)]
         $vis enum $name {
             $(
-                #[doc = $doc]
                 $(#[$variant_attr])*
                 $variant $({ $($field : $field_ty),* })?
             ),*
@@ -30,7 +29,6 @@ macro_rules! error_enum {
             fn fmt(&self, formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 match self {
                     $(
-                        #[doc = $doc]
                         $crate::error_enum_pat!($variant $({ $($field : $field_ty),* })?) => $crate::error_enum_fmt!($variant $({ $($field : $field_ty),* })?, formatter, $doc)
                         // Have to use two helper macros, because Rust macros cannot expand to incomplete AST nodes: https://github.com/rust-lang/rust/issues/12832#issuecomment-408640734
                     ),*
