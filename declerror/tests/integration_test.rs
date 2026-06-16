@@ -11,6 +11,9 @@ pub enum MyError {
     ErrorWithCode { code: i32 },
     #[error = "This is an error with a message: {message} and a code: {code}"]
     ErrorWithMessageAndCode { message: String, code: i32 },
+    // Tuple variants not supported (yet?)
+    // #[error = "This is an error with unnamed fields: {0}, {1}"]
+    // ErrorWithUnnamedFields(String, i32),
 }
 
 #[test]

@@ -8,6 +8,7 @@
 ## Members
 
 - [`attrio`](./attrio/README.md): A tiny library for easily generating macros that annotate items with given attributes.
+- [`declerror`](./declerror/README.md): Declarative macros to "derive" `Error`.
 - [`macro_rules_attr`](./macro_rules_attr/README.md): Use declarative macros as proc_macro attributes. (`#[apply]` your `macro_rules!`)
 - [`optfield-lite`](./optfield-lite/README.md): A macro to generate a new struct with fields wrapped in `Option`. Lite version of [`optfield`](https://crates.io/crates/optfield).
 - [`option-chain`](./option-chain/README.md): A macro for using `?` operator in functions that don't return `Option`.

@@ -44,11 +44,13 @@ macro_rules! error_enum {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! error_enum_pat {
-    ($variant:ident { $($field:ident : $field_ty:ty),* }) => {
-        Self::$variant { $($field),* }
-    };
+    // Unit variant
     ($variant:ident) => {
         Self::$variant
+    };
+    // Struct variant with named fields
+    ($variant:ident { $($field:ident : $field_ty:ty),* }) => {
+        Self::$variant { $($field),* }
     };
 }
 
@@ -56,10 +58,12 @@ macro_rules! error_enum_pat {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! error_enum_fmt {
-    ($variant:ident { $($field:ident : $field_ty:ty),* }, $formatter:ident, $doc:literal) => {
-        ::core::write!($formatter, $doc, $($field = $field),*)
-    };
+    // Unit variant
     ($variant:ident, $formatter:ident, $doc:literal) => {
         ::core::write!($formatter, $doc)
+    };
+    // Struct variant with named fields
+    ($variant:ident { $($field:ident : $field_ty:ty),* }, $formatter:ident, $doc:literal) => {
+        ::core::write!($formatter, $doc, $($field = $field),*)
     };
 }
