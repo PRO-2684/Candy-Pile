@@ -32,6 +32,7 @@ macro_rules! error_enum {
                     $(
                         #[doc = $doc]
                         $crate::error_enum_pat!($variant $({ $($field : $field_ty),* })?) => $crate::error_enum_fmt!($variant $({ $($field : $field_ty),* })?, formatter, $doc)
+                        // Have to use two helper macros, because Rust macros cannot expand to incomplete AST nodes: https://github.com/rust-lang/rust/issues/12832#issuecomment-408640734
                     ),*
                 }
             }
@@ -41,6 +42,7 @@ macro_rules! error_enum {
     };
 }
 
+/// Helper macro to match an enum variant.
 #[doc(hidden)]
 #[macro_export]
 macro_rules! error_enum_pat {
@@ -52,6 +54,7 @@ macro_rules! error_enum_pat {
     };
 }
 
+/// Helper macro to format an enum variant.
 #[doc(hidden)]
 #[macro_export]
 macro_rules! error_enum_fmt {
