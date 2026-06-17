@@ -13,6 +13,9 @@ macro_rules! error_enum {
                 #[error = $doc:literal]
                 $(#[$variant_attr:meta])*
                 $variant:ident
+                // Keep struct and tuple forms explicit. Capturing an optional
+                // `$tt` after `$variant` is too broad and can make the variant
+                // list locally ambiguous around commas and the enum closing brace.
                 $({ $($field:ident : $field_ty:ty),* $(,)? })?
                 $(($($tuple_field_ty:ty),* $(,)?))?
             ),* $(,)?
@@ -33,6 +36,8 @@ macro_rules! error_enum {
             fn fmt(&self, formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 match self {
                     $(
+                        // Tuple variants do not provide field names, so pass a fixed binding-name pool into both helpers.
+                        // Because the pattern and format expression receive identifiers from the same expansion, the formatter can refer to the bindings introduced by the pattern.
                         $crate::error_enum_pat!(
                             $variant
                             $({ $($field : $field_ty),* })?
@@ -52,7 +57,7 @@ macro_rules! error_enum {
                             formatter,
                             $doc
                         )
-                        // Have to use two helper macros, because Rust macros cannot expand to incomplete AST nodes: https://github.com/rust-lang/rust/issues/12832#issuecomment-408640734
+                        // Pattern and expression are separate helpers because `macro_rules!` cannot expand to an incomplete match arm.
                     ),*
                 }
             }
@@ -87,6 +92,7 @@ macro_rules! error_enum_tuple_pat {
     ($variant:ident; [$($tuple_field:ident),*]; $($field_ty:ty),*) => {
         $crate::error_enum_tuple_pat!(@collect $variant; []; [$($tuple_field),*]; $($field_ty),*)
     };
+    // Consume one tuple type and one generated binding name at a time. The type is only used as a counter; the emitted pattern needs the binding name.
     (@collect $variant:ident; [$($field:ident,)*]; [$next_field:ident $(, $tuple_field:ident)*]; $field_ty:ty $(, $rest_ty:ty)*) => {
         $crate::error_enum_tuple_pat!(
             @collect
@@ -96,6 +102,7 @@ macro_rules! error_enum_tuple_pat {
             $($rest_ty),*
         )
     };
+    // When no tuple types remain, emit the tuple variant pattern with exactly the collected bindings. This also handles the zero-field tuple case.
     (@collect $variant:ident; [$($field:ident,)*]; [$($tuple_field:ident),*];) => {
         Self::$variant($($field),*)
     };
@@ -126,6 +133,7 @@ macro_rules! error_enum_tuple_fmt {
     ($formatter:ident, $doc:literal; [$($tuple_field:ident),*]; $($field_ty:ty),*) => {
         $crate::error_enum_tuple_fmt!(@collect $formatter, $doc; []; [$($tuple_field),*]; $($field_ty),*)
     };
+    // Mirror `error_enum_tuple_pat!`: consume one type per generated binding so positional format strings receive the same fields bound by the pattern.
     (@collect $formatter:ident, $doc:literal; [$($field:ident,)*]; [$next_field:ident $(, $tuple_field:ident)*]; $field_ty:ty $(, $rest_ty:ty)*) => {
         $crate::error_enum_tuple_fmt!(
             @collect
@@ -136,6 +144,7 @@ macro_rules! error_enum_tuple_fmt {
             $($rest_ty),*
         )
     };
+    // Emit no extra arguments for zero-field tuple variants, otherwise forward the collected bindings as positional formatting arguments.
     (@collect $formatter:ident, $doc:literal; [$($field:ident,)*]; [$($tuple_field:ident),*];) => {
         ::core::write!($formatter, $doc $(, $field)*)
     };
