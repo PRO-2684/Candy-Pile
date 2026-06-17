@@ -36,12 +36,19 @@ macro_rules! error_enum {
                         $crate::error_enum_pat!(
                             $variant
                             $({ $($field : $field_ty),* })?
-                            $(($($tuple_field_ty),*))?
+                            $(($($tuple_field_ty),*))?;
+                            [
+                                field_0, field_1, field_2, field_3, field_4, field_5,
+                                field_6, field_7, field_8, field_9, field_10, field_11
+                            ]
                         ) => $crate::error_enum_fmt!(
                             $variant
                             $({ $($field : $field_ty),* })?
-                            $(($($tuple_field_ty),*))?,
-                            self,
+                            $(($($tuple_field_ty),*))?;
+                            [
+                                field_0, field_1, field_2, field_3, field_4, field_5,
+                                field_6, field_7, field_8, field_9, field_10, field_11
+                            ],
                             formatter,
                             $doc
                         )
@@ -60,16 +67,16 @@ macro_rules! error_enum {
 #[macro_export]
 macro_rules! error_enum_pat {
     // Unit variant
-    ($variant:ident) => {
+    ($variant:ident; [$($tuple_field:ident),*]) => {
         Self::$variant
     };
     // Struct variant with named fields
-    ($variant:ident { $($field:ident : $field_ty:ty),* }) => {
+    ($variant:ident { $($field:ident : $field_ty:ty),* }; [$($tuple_field:ident),*]) => {
         Self::$variant { $($field),* }
     };
     // Tuple variant with unnamed fields
-    ($variant:ident ($($field_ty:ty),*)) => {
-        $crate::error_enum_tuple_pat!($variant($($field_ty),*))
+    ($variant:ident ($($field_ty:ty),*); [$($tuple_field:ident),*]) => {
+        $crate::error_enum_tuple_pat!($variant; [$($tuple_field),*]; $($field_ty),*)
     };
 }
 
@@ -77,11 +84,20 @@ macro_rules! error_enum_pat {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! error_enum_tuple_pat {
-    ($variant:ident()) => {
-        Self::$variant()
+    ($variant:ident; [$($tuple_field:ident),*]; $($field_ty:ty),*) => {
+        $crate::error_enum_tuple_pat!(@collect $variant; []; [$($tuple_field),*]; $($field_ty),*)
     };
-    ($variant:ident($($field_ty:ty),+)) => {
-        Self::$variant(..)
+    (@collect $variant:ident; [$($field:ident,)*]; [$next_field:ident $(, $tuple_field:ident)*]; $field_ty:ty $(, $rest_ty:ty)*) => {
+        $crate::error_enum_tuple_pat!(
+            @collect
+            $variant;
+            [$($field,)* $next_field,];
+            [$($tuple_field),*];
+            $($rest_ty),*
+        )
+    };
+    (@collect $variant:ident; [$($field:ident,)*]; [$($tuple_field:ident),*];) => {
+        Self::$variant($($field),*)
     };
 }
 
@@ -90,16 +106,16 @@ macro_rules! error_enum_tuple_pat {
 #[macro_export]
 macro_rules! error_enum_fmt {
     // Unit variant
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal) => {
+    ($variant:ident; [$($tuple_field:ident),*], $formatter:ident, $doc:literal) => {
         ::core::write!($formatter, $doc)
     };
     // Struct variant with named fields
-    ($variant:ident { $($field:ident : $field_ty:ty),* }, $self:ident, $formatter:ident, $doc:literal) => {
+    ($variant:ident { $($field:ident : $field_ty:ty),* }; [$($tuple_field:ident),*], $formatter:ident, $doc:literal) => {
         ::core::write!($formatter, $doc, $($field = $field),*)
     };
     // Tuple variant with unnamed fields
-    ($variant:ident ($($field_ty:ty),*), $self:ident, $formatter:ident, $doc:literal) => {
-        $crate::error_enum_tuple_fmt!($variant, $self, $formatter, $doc; $($field_ty),*)
+    ($variant:ident ($($field_ty:ty),*); [$($tuple_field:ident),*], $formatter:ident, $doc:literal) => {
+        $crate::error_enum_tuple_fmt!($formatter, $doc; [$($tuple_field),*]; $($field_ty),*)
     };
 }
 
@@ -107,151 +123,20 @@ macro_rules! error_enum_fmt {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! error_enum_tuple_fmt {
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal;) => {{ ::core::write!($formatter, $doc) }};
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal; $field_0_ty:ty) => {{
-        let Self::$variant(field_0) = $self else {
-            ::core::unreachable!()
-        };
-        ::core::write!($formatter, $doc, field_0)
-    }};
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal; $field_0_ty:ty, $field_1_ty:ty) => {{
-        let Self::$variant(field_0, field_1) = $self else {
-            ::core::unreachable!()
-        };
-        ::core::write!($formatter, $doc, field_0, field_1)
-    }};
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal; $field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty) => {{
-        let Self::$variant(field_0, field_1, field_2) = $self else {
-            ::core::unreachable!()
-        };
-        ::core::write!($formatter, $doc, field_0, field_1, field_2)
-    }};
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal; $field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty) => {{
-        let Self::$variant(field_0, field_1, field_2, field_3) = $self else {
-            ::core::unreachable!()
-        };
-        ::core::write!($formatter, $doc, field_0, field_1, field_2, field_3)
-    }};
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal; $field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty) => {{
-        let Self::$variant(field_0, field_1, field_2, field_3, field_4) = $self else {
-            ::core::unreachable!()
-        };
-        ::core::write!(
-            $formatter, $doc, field_0, field_1, field_2, field_3, field_4
+    ($formatter:ident, $doc:literal; [$($tuple_field:ident),*]; $($field_ty:ty),*) => {
+        $crate::error_enum_tuple_fmt!(@collect $formatter, $doc; []; [$($tuple_field),*]; $($field_ty),*)
+    };
+    (@collect $formatter:ident, $doc:literal; [$($field:ident,)*]; [$next_field:ident $(, $tuple_field:ident)*]; $field_ty:ty $(, $rest_ty:ty)*) => {
+        $crate::error_enum_tuple_fmt!(
+            @collect
+            $formatter,
+            $doc;
+            [$($field,)* $next_field,];
+            [$($tuple_field),*];
+            $($rest_ty),*
         )
-    }};
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal; $field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty) => {{
-        let Self::$variant(field_0, field_1, field_2, field_3, field_4, field_5) = $self else {
-            ::core::unreachable!()
-        };
-        ::core::write!(
-            $formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5
-        )
-    }};
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal; $field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty, $field_6_ty:ty) => {{
-        let Self::$variant(field_0, field_1, field_2, field_3, field_4, field_5, field_6) = $self
-        else {
-            ::core::unreachable!()
-        };
-        ::core::write!(
-            $formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5, field_6
-        )
-    }};
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal; $field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty, $field_6_ty:ty, $field_7_ty:ty) => {{
-        let Self::$variant(field_0, field_1, field_2, field_3, field_4, field_5, field_6, field_7) =
-            $self
-        else {
-            ::core::unreachable!()
-        };
-        ::core::write!(
-            $formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5, field_6,
-            field_7
-        )
-    }};
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal; $field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty, $field_6_ty:ty, $field_7_ty:ty, $field_8_ty:ty) => {{
-        let Self::$variant(
-            field_0,
-            field_1,
-            field_2,
-            field_3,
-            field_4,
-            field_5,
-            field_6,
-            field_7,
-            field_8,
-        ) = $self
-        else {
-            ::core::unreachable!()
-        };
-        ::core::write!(
-            $formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5, field_6,
-            field_7, field_8
-        )
-    }};
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal; $field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty, $field_6_ty:ty, $field_7_ty:ty, $field_8_ty:ty, $field_9_ty:ty) => {{
-        let Self::$variant(
-            field_0,
-            field_1,
-            field_2,
-            field_3,
-            field_4,
-            field_5,
-            field_6,
-            field_7,
-            field_8,
-            field_9,
-        ) = $self
-        else {
-            ::core::unreachable!()
-        };
-        ::core::write!(
-            $formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5, field_6,
-            field_7, field_8, field_9
-        )
-    }};
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal; $field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty, $field_6_ty:ty, $field_7_ty:ty, $field_8_ty:ty, $field_9_ty:ty, $field_10_ty:ty) => {{
-        let Self::$variant(
-            field_0,
-            field_1,
-            field_2,
-            field_3,
-            field_4,
-            field_5,
-            field_6,
-            field_7,
-            field_8,
-            field_9,
-            field_10,
-        ) = $self
-        else {
-            ::core::unreachable!()
-        };
-        ::core::write!(
-            $formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5, field_6,
-            field_7, field_8, field_9, field_10
-        )
-    }};
-    ($variant:ident, $self:ident, $formatter:ident, $doc:literal; $field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty, $field_6_ty:ty, $field_7_ty:ty, $field_8_ty:ty, $field_9_ty:ty, $field_10_ty:ty, $field_11_ty:ty) => {{
-        let Self::$variant(
-            field_0,
-            field_1,
-            field_2,
-            field_3,
-            field_4,
-            field_5,
-            field_6,
-            field_7,
-            field_8,
-            field_9,
-            field_10,
-            field_11,
-        ) = $self
-        else {
-            ::core::unreachable!()
-        };
-        ::core::write!(
-            $formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5, field_6,
-            field_7, field_8, field_9, field_10, field_11
-        )
-    }};
+    };
+    (@collect $formatter:ident, $doc:literal; [$($field:ident,)*]; [$($tuple_field:ident),*];) => {
+        ::core::write!($formatter, $doc $(, $field)*)
+    };
 }
