@@ -20,6 +20,8 @@ pub enum MyError {
     SimpleError,
     #[error = "Referencing named fields ({code} {message}) in struct variants"]
     ErrorWithMessageAndCode { message: String, code: i32 },
+    #[error = "Referencing tuple fields ({0} {1}) in tuple variants"]
+    ErrorWithUnnamedFields(String, i32),
 }
 
 let error1 = MyError::SimpleError;
@@ -27,13 +29,20 @@ let error2 = MyError::ErrorWithMessageAndCode {
     message: "Something went wrong".to_string(),
     code: 404,
 };
+let error3 = MyError::ErrorWithUnnamedFields("Bad input".to_string(), 400);
+
 assert_eq!(error1.to_string(), "Unit variants");
 assert_eq!(error2.to_string(), "Referencing named fields (404 Something went wrong) in struct variants");
+assert_eq!(error3.to_string(), "Referencing tuple fields (Bad input 400) in tuple variants");
 ```
+
+## How?
+
+Checkout [`./docs/HOW.md`](./docs/HOW.md) for a detailed explanation.
 
 ## TODO
 
-- [ ] Tuple variants ([up to 12 fields](<https://doc.rust-lang.org/std/primitive.tuple.html#impl-From%3C%5BT;+1%5D%3E-for-(T,)>)).
+- [x] Tuple variants ([up to 12 fields](<https://doc.rust-lang.org/std/primitive.tuple.html#impl-From%3C%5BT;+1%5D%3E-for-(T,)>)).
 - [ ] Generics and lifetimes.
 - [ ] Support for `#[source]` and `#[backtrace]` attributes?
 
