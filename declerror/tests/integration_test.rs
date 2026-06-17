@@ -2,7 +2,7 @@ use declerror::error_enum;
 use macro_rules_attr::apply;
 
 #[apply(error_enum)]
-pub enum MyError {
+enum MyError {
     #[error = "This is a simple error without additional data"]
     SimpleError,
     #[error = "This is an error with a message: {message}"]

@@ -31,7 +31,11 @@ assert_eq!(error1.to_string(), "Unit variants");
 assert_eq!(error2.to_string(), "Referencing named fields (404 Something went wrong) in struct variants");
 ```
 
-Tuple variants are not supported.
+## TODO
+
+- [ ] Tuple variants ([up to 12 fields](<https://doc.rust-lang.org/std/primitive.tuple.html#impl-From%3C%5BT;+1%5D%3E-for-(T,)>)).
+- [ ] Generics and lifetimes.
+- [ ] Support for `#[source]` and `#[backtrace]` attributes?
 
 ## Related
 
