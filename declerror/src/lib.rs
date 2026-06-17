@@ -12,7 +12,9 @@ macro_rules! error_enum {
             $(
                 #[error = $doc:literal]
                 $(#[$variant_attr:meta])*
-                $variant:ident $({ $($field:ident : $field_ty:ty),* $(,)? })?
+                $variant:ident
+                $({ $($field:ident : $field_ty:ty),* $(,)? })?
+                $(($($tuple_field_ty:ty),* $(,)?))?
             ),* $(,)?
         }
     ) => {
@@ -21,7 +23,9 @@ macro_rules! error_enum {
         $vis enum $name {
             $(
                 $(#[$variant_attr])*
-                $variant $({ $($field : $field_ty),* })?
+                $variant
+                $({ $($field : $field_ty),* })?
+                $(($($tuple_field_ty),*))?
             ),*
         }
 
@@ -29,7 +33,18 @@ macro_rules! error_enum {
             fn fmt(&self, formatter: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
                 match self {
                     $(
-                        $crate::error_enum_pat!($variant $({ $($field : $field_ty),* })?) => $crate::error_enum_fmt!($variant $({ $($field : $field_ty),* })?, formatter, $doc)
+                        $crate::error_enum_pat!(
+                            $variant
+                            $({ $($field : $field_ty),* })?
+                            $(($($tuple_field_ty),*))?
+                        ) => $crate::error_enum_fmt!(
+                            $variant
+                            $({ $($field : $field_ty),* })?
+                            $(($($tuple_field_ty),*))?,
+                            self,
+                            formatter,
+                            $doc
+                        )
                         // Have to use two helper macros, because Rust macros cannot expand to incomplete AST nodes: https://github.com/rust-lang/rust/issues/12832#issuecomment-408640734
                     ),*
                 }
@@ -52,6 +67,9 @@ macro_rules! error_enum_pat {
     ($variant:ident { $($field:ident : $field_ty:ty),* }) => {
         Self::$variant { $($field),* }
     };
+    // Tuple variant with unnamed fields
+    ($variant:ident ()) => { Self::$variant() };
+    ($variant:ident ($($field_ty:ty),+)) => { Self::$variant(..) };
 }
 
 /// Helper macro to format an enum variant.
@@ -59,11 +77,63 @@ macro_rules! error_enum_pat {
 #[macro_export]
 macro_rules! error_enum_fmt {
     // Unit variant
-    ($variant:ident, $formatter:ident, $doc:literal) => {
+    ($variant:ident, $self:ident, $formatter:ident, $doc:literal) => {
         ::core::write!($formatter, $doc)
     };
     // Struct variant with named fields
-    ($variant:ident { $($field:ident : $field_ty:ty),* }, $formatter:ident, $doc:literal) => {
+    ($variant:ident { $($field:ident : $field_ty:ty),* }, $self:ident, $formatter:ident, $doc:literal) => {
         ::core::write!($formatter, $doc, $($field = $field),*)
     };
+    // Tuple variant with unnamed fields
+    ($variant:ident (), $self:ident, $formatter:ident, $doc:literal) => {{
+        ::core::write!($formatter, $doc)
+    }};
+    ($variant:ident ($field_0_ty:ty), $self:ident, $formatter:ident, $doc:literal) => {{
+        let Self::$variant(field_0) = $self else { ::core::unreachable!() };
+        ::core::write!($formatter, $doc, field_0)
+    }};
+    ($variant:ident ($field_0_ty:ty, $field_1_ty:ty), $self:ident, $formatter:ident, $doc:literal) => {{
+        let Self::$variant(field_0, field_1) = $self else { ::core::unreachable!() };
+        ::core::write!($formatter, $doc, field_0, field_1)
+    }};
+    ($variant:ident ($field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty), $self:ident, $formatter:ident, $doc:literal) => {{
+        let Self::$variant(field_0, field_1, field_2) = $self else { ::core::unreachable!() };
+        ::core::write!($formatter, $doc, field_0, field_1, field_2)
+    }};
+    ($variant:ident ($field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty), $self:ident, $formatter:ident, $doc:literal) => {{
+        let Self::$variant(field_0, field_1, field_2, field_3) = $self else { ::core::unreachable!() };
+        ::core::write!($formatter, $doc, field_0, field_1, field_2, field_3)
+    }};
+    ($variant:ident ($field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty), $self:ident, $formatter:ident, $doc:literal) => {{
+        let Self::$variant(field_0, field_1, field_2, field_3, field_4) = $self else { ::core::unreachable!() };
+        ::core::write!($formatter, $doc, field_0, field_1, field_2, field_3, field_4)
+    }};
+    ($variant:ident ($field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty), $self:ident, $formatter:ident, $doc:literal) => {{
+        let Self::$variant(field_0, field_1, field_2, field_3, field_4, field_5) = $self else { ::core::unreachable!() };
+        ::core::write!($formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5)
+    }};
+    ($variant:ident ($field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty, $field_6_ty:ty), $self:ident, $formatter:ident, $doc:literal) => {{
+        let Self::$variant(field_0, field_1, field_2, field_3, field_4, field_5, field_6) = $self else { ::core::unreachable!() };
+        ::core::write!($formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5, field_6)
+    }};
+    ($variant:ident ($field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty, $field_6_ty:ty, $field_7_ty:ty), $self:ident, $formatter:ident, $doc:literal) => {{
+        let Self::$variant(field_0, field_1, field_2, field_3, field_4, field_5, field_6, field_7) = $self else { ::core::unreachable!() };
+        ::core::write!($formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5, field_6, field_7)
+    }};
+    ($variant:ident ($field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty, $field_6_ty:ty, $field_7_ty:ty, $field_8_ty:ty), $self:ident, $formatter:ident, $doc:literal) => {{
+        let Self::$variant(field_0, field_1, field_2, field_3, field_4, field_5, field_6, field_7, field_8) = $self else { ::core::unreachable!() };
+        ::core::write!($formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5, field_6, field_7, field_8)
+    }};
+    ($variant:ident ($field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty, $field_6_ty:ty, $field_7_ty:ty, $field_8_ty:ty, $field_9_ty:ty), $self:ident, $formatter:ident, $doc:literal) => {{
+        let Self::$variant(field_0, field_1, field_2, field_3, field_4, field_5, field_6, field_7, field_8, field_9) = $self else { ::core::unreachable!() };
+        ::core::write!($formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5, field_6, field_7, field_8, field_9)
+    }};
+    ($variant:ident ($field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty, $field_6_ty:ty, $field_7_ty:ty, $field_8_ty:ty, $field_9_ty:ty, $field_10_ty:ty), $self:ident, $formatter:ident, $doc:literal) => {{
+        let Self::$variant(field_0, field_1, field_2, field_3, field_4, field_5, field_6, field_7, field_8, field_9, field_10) = $self else { ::core::unreachable!() };
+        ::core::write!($formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5, field_6, field_7, field_8, field_9, field_10)
+    }};
+    ($variant:ident ($field_0_ty:ty, $field_1_ty:ty, $field_2_ty:ty, $field_3_ty:ty, $field_4_ty:ty, $field_5_ty:ty, $field_6_ty:ty, $field_7_ty:ty, $field_8_ty:ty, $field_9_ty:ty, $field_10_ty:ty, $field_11_ty:ty), $self:ident, $formatter:ident, $doc:literal) => {{
+        let Self::$variant(field_0, field_1, field_2, field_3, field_4, field_5, field_6, field_7, field_8, field_9, field_10, field_11) = $self else { ::core::unreachable!() };
+        ::core::write!($formatter, $doc, field_0, field_1, field_2, field_3, field_4, field_5, field_6, field_7, field_8, field_9, field_10, field_11)
+    }};
 }

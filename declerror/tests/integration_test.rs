@@ -11,9 +11,10 @@ enum MyError {
     ErrorWithCode { code: i32 },
     #[error = "This is an error with a message: {message} and a code: {code}"]
     ErrorWithMessageAndCode { message: String, code: i32 },
-    // Tuple variants not supported (yet?)
-    // #[error = "This is an error with unnamed fields: {0}, {1}"]
-    // ErrorWithUnnamedFields(String, i32),
+    #[error = "This is an error with unnamed fields: {0}, {1}"]
+    ErrorWithUnnamedFields(String, i32),
+    #[error = "{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}"]
+    ErrorWithTwelveFields(u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8),
 }
 
 #[test]
@@ -27,6 +28,9 @@ fn test_errors() {
         message: "Something went wrong".to_string(),
         code: 404,
     };
+    let error_with_unnamed_fields = MyError::ErrorWithUnnamedFields("message".to_string(), 500);
+    let error_with_twelve_fields =
+        MyError::ErrorWithTwelveFields(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11);
 
     assert_eq!(
         simple_error.to_string(),
@@ -44,4 +48,9 @@ fn test_errors() {
         error_with_message_and_code.to_string(),
         "This is an error with a message: Something went wrong and a code: 404"
     );
+    assert_eq!(
+        error_with_unnamed_fields.to_string(),
+        "This is an error with unnamed fields: message, 500"
+    );
+    assert_eq!(error_with_twelve_fields.to_string(), "01234567891011");
 }
