@@ -10,6 +10,8 @@ Use declarative macros as proc_macro attributes. (`#[apply]` your `macro_rules!`
 
 ## Usage
 
+### `#[apply]`
+
 First, bring the `apply` attribute macro into scope:
 
 ```rust
@@ -60,26 +62,12 @@ struct Another {}
 the_macro! { struct Another {}, "additional tokens", anything, (you - like) }
 ```
 
-## Examples
+### `#[extend]`
 
-### [`should_match`](https://crates.io/crates/should_match)
-
-```rust
-use macro_rules_attr::apply;
-use should_match::should_err;
-
-#[test]
-#[apply(should_err)]
-fn test() -> Result<(), &'static str> {
-    // This test will pass if an `Err` is returned.
-    Err("Should error")
-}
-```
-
-### Hello Macro
+The `extend` attribute macro works like `apply`, but it keeps the original item instead of consuming it, similar to how `#[derive]` works. For example:
 
 ```rust
-use macro_rules_attr::apply;
+use macro_rules_attr::extend;
 
 /// Simple macro that generates a `hello` function for given struct, which returns `Hello, {name}!`. If given a second argument, it will replace `{name}`.
 macro_rules! make_hello {
@@ -95,17 +83,7 @@ macro_rules! make_hello {
 #         ),* $(,)?
     }$(, $replacement:expr)?
 ) => {
-    // Repeat the struct definition
-#     $(#[$struct_meta])*
-#     $struct_vis
-    struct $StructName {
-        // ...
-#         $(
-#             $(#[$field_meta])*
-#             $field_vis:vis $field_name: $field_ty,
-#         )*
-    }
-
+    // You don't have to repeat the original struct definition, since `#[extend]` will keep it.
     // Implement the `hello` function
     impl $StructName {
         fn hello() -> String {
@@ -115,7 +93,6 @@ macro_rules! make_hello {
         }
     }
 };
-}
 
 #[apply(make_hello)] // No additional tokens
 struct WithoutReplacement {}
@@ -138,5 +115,5 @@ This crate is heavily inspired by [macro_rules_attribute](https://crates.io/crat
     - Less than 100 lines of code. (Excluding tests and documentation)
     - You can enable logging with the `log` feature, which requires `log` as a dependency.
     - `paste` is required as a dev-dependency for the tests.
-- `macro_rules_attr` only has one attribute: `#[apply]`, while `macro_rules_attribute` provides more.
+- `macro_rules_attr` only has `#[apply]` and `#[extend]`, while `macro_rules_attribute` provides more.
 - `macro_rules_attr` allows you to append any tokens after the annotated item, while `macro_rules_attribute` does not.
