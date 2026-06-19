@@ -10,4 +10,4 @@ license = "MIT"
 authors = ["PRO-2684"]
 
 [workspace.dependencies]
-macro_rules_attr = { path = "./macro_rules_attr", version = "0.1.2" }
+macro_rules_attr = { path = "./macro_rules_attr", version = "0.2.0" }

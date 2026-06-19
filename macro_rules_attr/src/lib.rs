@@ -120,9 +120,9 @@ fn split_macro_name_and_append(input: TokenStream) -> Result<(TokenTree, TokenSt
     let macro_append = tts.collect();
 
     #[cfg(feature = "log")]
-    debug!("macro_name: {:?}", macro_name);
+    debug!("macro_name: {macro_name:?}");
     #[cfg(feature = "log")]
-    debug!("macro_append: {:?}", macro_append);
+    debug!("macro_append: {macro_append:?}");
 
     Ok((macro_name, macro_append))
 }

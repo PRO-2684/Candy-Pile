@@ -6,7 +6,7 @@
 [![docs.rs](https://img.shields.io/docsrs/macro_rules_attr?logo=rust)](https://docs.rs/macro_rules_attr)
 [![free of syn](https://img.shields.io/badge/free%20of-syn-hotpink)](https://github.com/fasterthanlime/free-of-syn)
 
-Use declarative macros as proc_macro attributes. (`#[apply]` your `macro_rules!`)
+Use declarative macros as proc_macro attributes. (`#[apply]` / `#[extend]` your `macro_rules!`)
 
 ## Usage
 
