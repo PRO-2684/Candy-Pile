@@ -1,4 +1,4 @@
-use macro_rules_attr::apply;
+use macro_rules_attr::{apply, extend};
 use paste::paste;
 
 /// This macro generates getters for the fields of a struct. The fields will be private, and the getters will have the same visibility as the fields.
@@ -79,6 +79,43 @@ macro_rules! make_getters {
     }
 )}
 
+macro_rules! impl_sum {
+(
+    $(#[$struct_meta:meta])*
+    $struct_vis:vis
+    struct $StructName:ident {
+        $(
+            $(#[$field_meta:meta])*
+            $field_vis:vis
+            $field_name:ident : $field_ty:ty
+        ),* $(,)?
+    }
+) => (
+    impl $StructName {
+        fn sum(&self) -> i32 {
+            0 $(+ self.$field_name)*
+        }
+    }
+);
+(
+    $(#[$struct_meta:meta])*
+    $struct_vis:vis
+    struct $StructName:ident {
+        $(
+            $(#[$field_meta:meta])*
+            $field_vis:vis
+            $field_name:ident : $field_ty:ty
+        ),* $(,)?
+    },
+    $method:ident
+) => (
+    impl $StructName {
+        fn $method(&self) -> i32 {
+            0 $(+ self.$field_name)*
+        }
+    }
+)}
+
 #[test]
 fn test_apply_without_args() {
     #[apply(make_getters)]
@@ -105,4 +142,30 @@ fn test_apply_with_args() {
 
     assert_eq!(*my_struct.get_a(), 1);
     assert_eq!(*my_struct.get_b(), 2);
+}
+
+#[test]
+fn test_extend_without_args() {
+    #[extend(impl_sum)]
+    struct MyStruct {
+        pub a: i32,
+        pub b: i32,
+    }
+
+    let my_struct = MyStruct { a: 1, b: 2 };
+
+    assert_eq!(my_struct.sum(), 3);
+}
+
+#[test]
+fn test_extend_with_args() {
+    #[extend(impl_sum, total)]
+    struct MyStruct {
+        pub a: i32,
+        pub b: i32,
+    }
+
+    let my_struct = MyStruct { a: 1, b: 2 };
+
+    assert_eq!(my_struct.total(), 3);
 }

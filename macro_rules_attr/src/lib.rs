@@ -28,12 +28,15 @@ enum MacroError {
     InvalidMacroName,
 }
 
-impl From<MacroError> for TokenStream {
-    fn from(err: MacroError) -> Self {
-        match err {
-            MacroError::EmptyInput => error!("Expected an identifier to `apply`, found nothing"),
-            MacroError::InvalidMacroName => {
-                error!("Expected an identifier to `apply`, found something else")
+impl MacroError {
+    /// Emit a compile error for this macro error.
+    fn into_token_stream(self) -> TokenStream {
+        match self {
+            Self::EmptyInput => {
+                error!("Expected an identifier, found nothing")
+            }
+            Self::InvalidMacroName => {
+                error!("Expected an identifier, found something else")
             }
         }
     }
@@ -41,19 +44,29 @@ impl From<MacroError> for TokenStream {
 
 /// Apply the given macro to the annotated item, appending additional tokens if provided.
 ///
-/// See the [crate-level documentation](crate) for more information.
+/// # Example
+///
+/// ```rust
+/// use macro_rules_attr::apply;
+///
+/// macro_rules! rename_to_unit {
+///     ($vis:vis struct $Name:ident;) => {
+///         $vis struct Unit;
+///     };
+/// }
+///
+/// #[apply(rename_to_unit)]
+/// struct Original;
+///
+/// let _ = Unit;
+/// ```
 #[proc_macro_attribute]
 pub fn apply(attrs: TokenStream, input: TokenStream) -> TokenStream {
     // Split the attributes into the macro name and the additional tokens to append
     let (macro_name, macro_append) = match split_macro_name_and_append(attrs) {
         Ok(result) => result,
-        Err(err) => return err.into(),
+        Err(err) => return err.into_token_stream(),
     };
-
-    #[cfg(feature = "log")]
-    debug!("macro_name: {:?}", macro_name);
-    #[cfg(feature = "log")]
-    debug!("macro_append: {:?}", macro_append);
 
     // Invoke the macro
     invoke_macro(macro_name.into(), macro_append, input)
@@ -61,19 +74,33 @@ pub fn apply(attrs: TokenStream, input: TokenStream) -> TokenStream {
 
 /// Extend the annotated item by applying the given macro and appending additional tokens if provided.
 ///
-/// See the [crate-level documentation](crate) for more information.
+/// # Example
+///
+/// ```rust
+/// use macro_rules_attr::extend;
+///
+/// macro_rules! impl_new {
+///     ($vis:vis struct $Name:ident;) => {
+///         impl $Name {
+///             fn new() -> Self {
+///                 Self
+///             }
+///         }
+///     };
+/// }
+///
+/// #[extend(impl_new)]
+/// struct Unit;
+///
+/// let _ = Unit::new();
+/// ```
 #[proc_macro_attribute]
 pub fn extend(attrs: TokenStream, mut input: TokenStream) -> TokenStream {
     // Split the attributes into the macro name and the additional tokens to append
     let (macro_name, macro_append) = match split_macro_name_and_append(attrs) {
         Ok(result) => result,
-        Err(err) => return err.into(),
+        Err(err) => return err.into_token_stream(),
     };
-
-    #[cfg(feature = "log")]
-    debug!("macro_name: {:?}", macro_name);
-    #[cfg(feature = "log")]
-    debug!("macro_append: {:?}", macro_append);
 
     // Invoke the macro
     let invoked = invoke_macro(macro_name.into(), macro_append, input.clone());
@@ -91,6 +118,12 @@ fn split_macro_name_and_append(input: TokenStream) -> Result<(TokenTree, TokenSt
         return Err(MacroError::InvalidMacroName);
     }
     let macro_append = tts.collect();
+
+    #[cfg(feature = "log")]
+    debug!("macro_name: {:?}", macro_name);
+    #[cfg(feature = "log")]
+    debug!("macro_append: {:?}", macro_append);
+
     Ok((macro_name, macro_append))
 }
 
