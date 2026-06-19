@@ -19,33 +19,83 @@ macro_rules! error {
     }};
 }
 
-/// Apply the given `macro_rules` to the annotated item, appending additional tokens if provided.
+/// Errors that can occur when splitting the macro name and append tokens.
+#[derive(Debug)]
+enum MacroError {
+    /// The input is empty, so no macro name was found.
+    EmptyInput,
+    /// The first token is not an identifier, so it cannot be a valid macro name.
+    InvalidMacroName,
+}
+
+impl From<MacroError> for TokenStream {
+    fn from(err: MacroError) -> Self {
+        match err {
+            MacroError::EmptyInput => error!("Expected an identifier to `apply`, found nothing"),
+            MacroError::InvalidMacroName => {
+                error!("Expected an identifier to `apply`, found something else")
+            }
+        }
+    }
+}
+
+/// Apply the given macro to the annotated item, appending additional tokens if provided.
 ///
 /// See the [crate-level documentation](crate) for more information.
 #[proc_macro_attribute]
 pub fn apply(attrs: TokenStream, input: TokenStream) -> TokenStream {
-    // Parse `the_macro` and `macro_append` from `attrs`
-    let mut tts = attrs.into_iter();
-
-    let Some(macro_name) = tts.next() else {
-        return error!("Expected an identifier to `apply`, found nothing");
+    // Split the attributes into the macro name and the additional tokens to append
+    let (macro_name, macro_append) = match split_macro_name_and_append(attrs) {
+        Ok(result) => result,
+        Err(err) => return err.into(),
     };
-    if !matches!(macro_name, TokenTree::Ident(_)) {
-        return error!("Expected an identifier to `apply`, found something else");
-    }
+
     #[cfg(feature = "log")]
     debug!("macro_name: {:?}", macro_name);
-
-    let macro_append = tts.collect();
     #[cfg(feature = "log")]
     debug!("macro_append: {:?}", macro_append);
 
-    // Call `macro_rules_attr_impl`
-    macro_rules_attr_impl(macro_name.into(), macro_append, input)
+    // Invoke the macro
+    invoke_macro(macro_name.into(), macro_append, input)
 }
 
-/// Wrap the given `input` with given `macro_name`, appending `macro_append` at the end.
-fn macro_rules_attr_impl(
+/// Extend the annotated item by applying the given macro and appending additional tokens if provided.
+///
+/// See the [crate-level documentation](crate) for more information.
+#[proc_macro_attribute]
+pub fn extend(attrs: TokenStream, mut input: TokenStream) -> TokenStream {
+    // Split the attributes into the macro name and the additional tokens to append
+    let (macro_name, macro_append) = match split_macro_name_and_append(attrs) {
+        Ok(result) => result,
+        Err(err) => return err.into(),
+    };
+
+    #[cfg(feature = "log")]
+    debug!("macro_name: {:?}", macro_name);
+    #[cfg(feature = "log")]
+    debug!("macro_append: {:?}", macro_append);
+
+    // Invoke the macro
+    let invoked = invoke_macro(macro_name.into(), macro_append, input.clone());
+
+    // Combine the original input with the invoked macro output
+    input.extend(invoked);
+    input
+}
+
+/// Try to split the given `TokenStream` into an identifier followed by additional tokens.
+fn split_macro_name_and_append(input: TokenStream) -> Result<(TokenTree, TokenStream), MacroError> {
+    let mut tts = input.into_iter();
+    let macro_name = tts.next().ok_or(MacroError::EmptyInput)?;
+    if !matches!(macro_name, TokenTree::Ident(_)) {
+        return Err(MacroError::InvalidMacroName);
+    }
+    let macro_append = tts.collect();
+    Ok((macro_name, macro_append))
+}
+
+/// Invoke `macro_name` with given `input`, appending `macro_append` at the end.
+fn invoke_macro(
     macro_name: TokenStream,
     macro_append: TokenStream,
     input: TokenStream,

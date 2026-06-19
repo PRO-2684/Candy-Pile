@@ -1,6 +1,7 @@
 use macro_rules_attr::apply;
 use paste::paste;
 
+/// This macro generates getters for the fields of a struct. The fields will be private, and the getters will have the same visibility as the fields.
 macro_rules! make_getters {
 (
     $(#[$struct_meta:meta])*

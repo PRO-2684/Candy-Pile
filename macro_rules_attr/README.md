@@ -93,12 +93,13 @@ macro_rules! make_hello {
         }
     }
 };
+}
 
-#[apply(make_hello)] // No additional tokens
+#[extend(make_hello)] // No additional tokens
 struct WithoutReplacement {}
 assert_eq!(WithoutReplacement::hello(), "Hello, WithoutReplacement!");
 
-#[apply(make_hello, "World")] // Additional tokens
+#[extend(make_hello, "World")] // Additional tokens
 struct WithReplacement {}
 assert_eq!(WithReplacement::hello(), "Hello, World!");
 ```
