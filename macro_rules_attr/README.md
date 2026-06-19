@@ -19,8 +19,6 @@ use macro_rules_attr::apply;
 Then, define your macro using `macro_rules!`:
 
 ```rust
-# use macro_rules_attr::apply;
-#
 /// Your macro that you want to use as an attribute.
 macro_rules! the_macro {
     // Your macro implementation here.
