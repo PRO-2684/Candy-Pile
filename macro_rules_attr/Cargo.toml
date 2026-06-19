@@ -18,7 +18,7 @@ default = []
 proc-macro = true
 
 [dependencies]
-log = { version = "0.4.27", optional = true } # Enable logging by `log` feature
+log = { version = "0.4.32", optional = true } # Enable logging by `log` feature
 
 [dev-dependencies]
 paste = "1.0.15"
