@@ -46,6 +46,10 @@ Checkout [`./docs/HOW.md`](./docs/HOW.md) for a detailed explanation.
 - [ ] Generics and lifetimes.
 - [ ] Support for `#[source]` and `#[backtrace]` attributes?
 
+## Caveats
+
+- The `#[error = "..."]` attribute must be on top of the variant. So if you put doc comments on top of the variant, it won't work.
+
 ## Related
 
 - [`thiserror`](https://github.com/dtolnay/thiserror)
