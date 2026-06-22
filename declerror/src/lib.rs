@@ -16,8 +16,8 @@ macro_rules! error_enum {
                 // Keep struct and tuple forms explicit. Capturing an optional
                 // `$tt` after `$variant` is too broad and can make the variant
                 // list locally ambiguous around commas and the enum closing brace.
-                $({ $($field:ident : $field_ty:ty),* $(,)? })?
-                $(($($tuple_field_ty:ty),* $(,)?))?
+                $({ $($(#[$field_attr:meta])* $field:ident : $field_ty:ty),* $(,)? })?
+                $(($($(#[$tuple_field_attr:meta])* $tuple_field_ty:ty),* $(,)?))?
             ),* $(,)?
         }
     ) => {
@@ -27,8 +27,8 @@ macro_rules! error_enum {
             $(
                 $(#[$variant_attr])*
                 $variant
-                $({ $($field : $field_ty),* })?
-                $(($($tuple_field_ty),*))?
+                $({ $($(#[$field_attr])* $field : $field_ty),* })?
+                $(($($(#[$tuple_field_attr])* $tuple_field_ty),*))?
             ),*
         }
 

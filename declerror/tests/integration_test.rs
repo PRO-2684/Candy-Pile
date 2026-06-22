@@ -8,11 +8,18 @@ enum MyError {
     #[error = "This is an error with a message: {message}"]
     ErrorWithMessage { message: String },
     #[error = "This is an error with a code: {code}"]
-    ErrorWithCode { code: i32 },
+    ErrorWithCode {
+        /// The error code associated with this error
+        code: i32,
+    },
     #[error = "This is an error with a message: {message} and a code: {code}"]
     ErrorWithMessageAndCode { message: String, code: i32 },
     #[error = "This is an error with unnamed fields: {0}, {1}"]
-    ErrorWithUnnamedFields(String, i32),
+    ErrorWithUnnamedFields(
+        String,
+        /// Some integer value associated with this error
+        i32,
+    ),
     #[error = "{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}"]
     ErrorWithTwelveFields(u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8, u8),
 }
