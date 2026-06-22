@@ -5,16 +5,34 @@
 ```rust
 #[apply(error_enum)]
 enum MyError {
-    #[error = "Unit variant"]
+    #[error("Unit variant")]
     Unit,
-    #[error = "Struct variant: {message}"]
+    #[error("Struct variant: {message}")]
     Struct { message: String },
-    #[error = "Tuple variant: {0} {1}"]
+    #[error("Struct variant with explicit args: {}", path.display())]
+    Path { path: std::path::PathBuf },
+    #[error("Tuple variant: {0} {1}")]
     Tuple(String, i32),
 }
 ```
 
 Tuple variants support up to 12 fields. Format strings use Rust's positional formatting syntax: `{0}`, `{1}`, and so on.
+Named fields use Rust's standard `write!` formatting, so both implicit capture and explicit expression arguments are supported:
+
+```rust
+#[error("path: {path}")]
+PathImplicit { path: String },
+
+#[error("path: {}", path.display())]
+PathExplicit { path: std::path::PathBuf },
+```
+
+Tuple variants intentionally reject explicit format arguments. Use positional placeholders instead:
+
+```rust
+#[error("tuple: {0} {1}")]
+Tuple(String, i32),
+```
 
 ## Variant Matching
 
@@ -44,7 +62,13 @@ The explicit matcher works because the two data-bearing variant forms start with
 Struct variants are straightforward because named fields from the input can be reused directly:
 
 ```rust
-Self::Variant { message } => write!(formatter, "{message}", message = message)
+Self::Variant { message } => write!(formatter, "{message}")
+```
+
+Explicit formatting arguments also work for struct variants:
+
+```rust
+Self::Path { path } => write!(formatter, "{}", path.display())
 ```
 
 Tuple variants need generated binding names because the enum syntax only provides types:
@@ -79,6 +103,8 @@ write!(formatter, doc, field_0, field_1)
 ```
 
 The binding names come from the same outer macro expansion, so the identifiers used in the arm body refer to the bindings introduced by the match pattern.
+
+For tuple variants, explicit format arguments in `#[error(...)]` are rejected with `compile_error!`. User-written expressions cannot reliably refer to the macro-generated tuple binding names, so tuple variants only support auto-forwarded positional arguments.
 
 This avoids a second destructuring step such as:
 

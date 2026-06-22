@@ -16,11 +16,13 @@ use macro_rules_attr::apply;
 
 #[apply(error_enum)]
 pub enum MyError {
-    #[error = "Unit variants"]
+    #[error("Unit variants")]
     SimpleError,
-    #[error = "Referencing named fields ({code} {message}) in struct variants"]
+    #[error("Referencing named fields ({code} {message}) in struct variants")]
     ErrorWithMessageAndCode { message: String, code: i32 },
-    #[error = "Referencing tuple fields ({0} {1}) in tuple variants"]
+    #[error("Referencing named field methods ({})", path.display())]
+    ErrorWithPath { path: std::path::PathBuf },
+    #[error("Referencing tuple fields ({0} {1}) in tuple variants")]
     ErrorWithUnnamedFields(String, i32),
 }
 
@@ -29,11 +31,15 @@ let error2 = MyError::ErrorWithMessageAndCode {
     message: "Something went wrong".to_string(),
     code: 404,
 };
-let error3 = MyError::ErrorWithUnnamedFields("Bad input".to_string(), 400);
+let error3 = MyError::ErrorWithPath {
+    path: std::path::PathBuf::from("/tmp/input.txt"),
+};
+let error4 = MyError::ErrorWithUnnamedFields("Bad input".to_string(), 400);
 
 assert_eq!(error1.to_string(), "Unit variants");
 assert_eq!(error2.to_string(), "Referencing named fields (404 Something went wrong) in struct variants");
-assert_eq!(error3.to_string(), "Referencing tuple fields (Bad input 400) in tuple variants");
+assert_eq!(error3.to_string(), "Referencing named field methods (/tmp/input.txt)");
+assert_eq!(error4.to_string(), "Referencing tuple fields (Bad input 400) in tuple variants");
 ```
 
 ## How?
@@ -48,7 +54,8 @@ Checkout [`./docs/HOW.md`](./docs/HOW.md) for a detailed explanation.
 
 ## Caveats
 
-- The `#[error = "..."]` attribute must be on top of the variant. So if you put doc comments on top of the variant, it won't work.
+- The `#[error("...")]` attribute must be on top of the variant. So if you put doc comments on top of the variant, it won't work.
+- Tuple variants do not support explicit format arguments in `#[error(...)]`. Use positional placeholders like `{0}` and `{1}` instead.
 
 ## Related
 
