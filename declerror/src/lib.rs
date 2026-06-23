@@ -10,7 +10,8 @@ macro_rules! error_enum {
         $(#[$enum_attr:meta])*
         $vis:vis enum $name:ident {
             $(
-                #[error($doc:literal $(, $format_arg:expr)* $(,)?)]
+                $(#[doc = $doc:literal])*
+                #[error($format_str:literal $(, $format_arg:expr)* $(,)?)]
                 $(#[$variant_attr:meta])*
                 $variant:ident
                 // Keep struct and tuple forms explicit. Capturing an optional
@@ -25,6 +26,7 @@ macro_rules! error_enum {
         #[derive(::core::fmt::Debug)]
         $vis enum $name {
             $(
+                $(#[doc = $doc])*
                 $(#[$variant_attr])*
                 $variant
                 $({ $($(#[$field_attr])* $field : $field_ty),* })?
@@ -55,7 +57,7 @@ macro_rules! error_enum {
                                 field_6, field_7, field_8, field_9, field_10, field_11
                             ],
                             formatter,
-                            $doc;
+                            $format_str;
                             $($format_arg),*
                         )
                         // Pattern and expression are separate helpers because `macro_rules!` cannot expand to an incomplete match arm.
@@ -114,18 +116,18 @@ macro_rules! error_enum_tuple_pat {
 #[macro_export]
 macro_rules! error_enum_fmt {
     // Unit variant
-    ($variant:ident; [$($tuple_field:ident),*], $formatter:ident, $doc:literal; $($format_arg:expr),*) => {
-        ::core::write!($formatter, $doc $(, $format_arg)*)
+    ($variant:ident; [$($tuple_field:ident),*], $formatter:ident, $format_str:literal; $($format_arg:expr),*) => {
+        ::core::write!($formatter, $format_str $(, $format_arg)*)
     };
     // Struct variant with named fields
-    ($variant:ident { $($field:ident : $field_ty:ty),* }; [$($tuple_field:ident),*], $formatter:ident, $doc:literal; $($format_arg:expr),*) => {
-        ::core::write!($formatter, $doc $(, $format_arg)*)
+    ($variant:ident { $($field:ident : $field_ty:ty),* }; [$($tuple_field:ident),*], $formatter:ident, $format_str:literal; $($format_arg:expr),*) => {
+        ::core::write!($formatter, $format_str $(, $format_arg)*)
     };
     // Tuple variant with unnamed fields
-    ($variant:ident ($($field_ty:ty),*); [$($tuple_field:ident),*], $formatter:ident, $doc:literal; $($format_arg:expr),*) => {
+    ($variant:ident ($($field_ty:ty),*); [$($tuple_field:ident),*], $formatter:ident, $format_str:literal; $($format_arg:expr),*) => {
         $crate::error_enum_tuple_fmt!(
             $formatter,
-            $doc;
+            $format_str;
             fields [$($tuple_field),*];
             types [$($field_ty),*];
             args [$($format_arg),*]
@@ -137,25 +139,25 @@ macro_rules! error_enum_fmt {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! error_enum_tuple_fmt {
-    ($formatter:ident, $doc:literal; fields [$($tuple_field:ident),*]; types [$($field_ty:ty),*]; args []) => {
-        $crate::error_enum_tuple_fmt!(@collect $formatter, $doc; []; [$($tuple_field),*]; $($field_ty),*)
+    ($formatter:ident, $format_str:literal; fields [$($tuple_field:ident),*]; types [$($field_ty:ty),*]; args []) => {
+        $crate::error_enum_tuple_fmt!(@collect $formatter, $format_str; []; [$($tuple_field),*]; $($field_ty),*)
     };
-    ($formatter:ident, $doc:literal; fields [$($tuple_field:ident),*]; types [$($field_ty:ty),*]; args [$first_format_arg:expr $(, $format_arg:expr)*]) => {
+    ($formatter:ident, $format_str:literal; fields [$($tuple_field:ident),*]; types [$($field_ty:ty),*]; args [$first_format_arg:expr $(, $format_arg:expr)*]) => {
         ::core::compile_error!("tuple variants do not support explicit #[error(...)] format arguments; use positional placeholders like {0} and {1}")
     };
     // Mirror `error_enum_tuple_pat!`: consume one type per generated binding so positional format strings receive the same fields bound by the pattern.
-    (@collect $formatter:ident, $doc:literal; [$($field:ident,)*]; [$next_field:ident $(, $tuple_field:ident)*]; $field_ty:ty $(, $rest_ty:ty)*) => {
+    (@collect $formatter:ident, $format_str:literal; [$($field:ident,)*]; [$next_field:ident $(, $tuple_field:ident)*]; $field_ty:ty $(, $rest_ty:ty)*) => {
         $crate::error_enum_tuple_fmt!(
             @collect
             $formatter,
-            $doc;
+            $format_str;
             [$($field,)* $next_field,];
             [$($tuple_field),*];
             $($rest_ty),*
         )
     };
     // Emit no extra arguments for zero-field tuple variants, otherwise forward the collected bindings as positional formatting arguments.
-    (@collect $formatter:ident, $doc:literal; [$($field:ident,)*]; [$($tuple_field:ident),*];) => {
-        ::core::write!($formatter, $doc $(, $field)*)
+    (@collect $formatter:ident, $format_str:literal; [$($field:ident,)*]; [$($tuple_field:ident),*];) => {
+        ::core::write!($formatter, $format_str $(, $field)*)
     };
 }

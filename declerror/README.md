@@ -54,7 +54,7 @@ Checkout [`./docs/HOW.md`](./docs/HOW.md) for a detailed explanation.
 
 ## Caveats
 
-- The `#[error("...")]` attribute must be on top of the variant. So if you put doc comments on top of the variant, it won't work.
+- The `#[error("...")]` attribute must come first in the list of attributes for a variant. However, doc comments are handled specially and can be placed before the `#[error(...)]` attribute.
 - Tuple variants do not support explicit format arguments in `#[error(...)]`. Use positional placeholders like `{0}` and `{1}` instead.
 
 ## Related

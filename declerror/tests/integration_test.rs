@@ -5,9 +5,11 @@ use macro_rules_attr::apply;
 
 #[apply(error_enum)]
 enum MyError {
+    /// Doc comment before `#[error]`
     #[error("This is a simple error without additional data")]
     SimpleError,
     #[error("This is an error with a message: {message}")]
+    /// Doc comment after `#[error]`
     ErrorWithMessage { message: String },
     #[error("This is an error with a code: {code}")]
     ErrorWithCode {
